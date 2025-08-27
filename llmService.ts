@@ -20,8 +20,8 @@ export class LLMService {
             model: this.config.model,
             region: this.config.awsRegion,
             credentials: {
-                accessKeyId: this.config.awsAccessKeyId,
-                secretAccessKey: this.config.awsSecretAccessKey,
+                accessKeyId: (this.config.awsAccessKeyId as string),
+                secretAccessKey: (this.config.awsSecretAccessKey as string),
             },
         }),
       };

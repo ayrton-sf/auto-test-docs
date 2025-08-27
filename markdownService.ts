@@ -34,7 +34,7 @@ export class MarkdownService {
       }
     }
 
-    const markdownPath = path.join(this.config.targetPath, "documentation.md");
+    const markdownPath = path.join(this.config.outputPath, "documentation.md");
     fs.writeFileSync(markdownPath, markdownContent, "utf-8");
     console.log(`Markdown documentation saved to ${markdownPath}`);
   }

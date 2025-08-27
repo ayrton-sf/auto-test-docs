@@ -3,34 +3,32 @@ import { ModelProviderMap } from "./providerMap";
 
 export class Config {
   public readonly model: string;
-  public readonly testsDir: string;
-  public readonly targetPath: string;
-  public readonly awsSecretAccessKey: string;
-  public readonly awsAccessKeyId: string;
-  public readonly provider: string;
-  public readonly awsRegion: string;
+  public readonly provider: Provider;
+  public readonly inputDir: string;
+  public readonly outputPath: string;
+  public readonly awsSecretAccessKey?: string;
+  public readonly awsAccessKeyId?: string;
+  public readonly awsRegion?: string;
+  public readonly apiKey?: string;
 
   constructor() {
-    this.model = this.get("LLM_MODEL");
-    this.testsDir = this.get("TESTS_DIR");
-    this.targetPath = this.get("TARGET_PATH");
-    this.awsSecretAccessKey = this.get("AWS_SECRET_ACCESS_KEY");
-    this.awsAccessKeyId = this.get("AWS_ACCESS_KEY_ID");
+    this.model = this.getEnvVar("LLM_MODEL");
     this.provider = ModelProviderMap[this.model];
-    this.awsRegion = this.getRegion("AWS_REGION");
-  }
+    this.inputDir = this.getEnvVar("INPUT_DIR");
+    this.outputPath = this.getEnvVar("OUTPUT_PATH");
 
-  private get(envVar: string): string {
-    const value = process.env[envVar];
-    if (!value) throw new Error(`Missing env variable ${envVar}`);
-    return value;
-  }
-
-  private getRegion(regionVarKey: string): string  {
-    try {
-        return this.provider === Provider.BEDROCK ? this.get(regionVarKey) : ""
-    } catch {
-        return ""
+    if (this.provider === Provider.BEDROCK) {
+      this.awsAccessKeyId = this.getEnvVar("AWS_ACCESS_KEY_ID");
+      this.awsSecretAccessKey = this.getEnvVar("AWS_SECRET_ACCESS_KEY");
+      this.awsRegion = this.getEnvVar("AWS_REGION");
+    } else {
+      this.apiKey = this.getEnvVar("API_KEY");
     }
+  }
+
+  private getEnvVar(name: string): string {
+    const value = process.env[name];
+    if (!value) throw new Error(`Missing env variable: ${name}`);
+    return value;
   }
 }

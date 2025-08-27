@@ -23,7 +23,7 @@ if (isUpdate) {
 
 (async () => {
   for (const [file, desc] of Object.entries(files)) {
-    const fullPath = path.join(config.testsDir, file);
+    const fullPath = path.join(config.inputDir, file);
     const summary = await llmService.summarize(fullPath);
     fileService.save(file, summary);
   }

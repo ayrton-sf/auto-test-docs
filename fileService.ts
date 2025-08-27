@@ -35,7 +35,7 @@ export class FileService {
     if (files.length > 0) {
       const dict: FileDict = {};
       for (const f of files) {
-        const relativePath = path.relative(this.config.testsDir, path.join(this.config.testsDir, f));
+        const relativePath = path.relative(this.config.inputDir, path.join(this.config.inputDir, f));
         dict[relativePath] = this.state[relativePath] || "";
       }
       return dict;
@@ -48,13 +48,13 @@ export class FileService {
         if (entry.isDirectory()) {
           scanDir(fullPath);
         } else if (entry.isFile()) {
-          const relPath = path.relative(this.config.testsDir, fullPath).replace(/\\/g, "/");
+          const relPath = path.relative(this.config.inputDir, fullPath).replace(/\\/g, "/");
           scannedDict[relPath] = "";
         }
       }
     };
 
-    scanDir(this.config.testsDir);
+    scanDir(this.config.inputDir);
 
     if (Object.keys(this.state).length === 0) {
       return scannedDict;
