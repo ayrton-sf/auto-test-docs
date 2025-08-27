@@ -1,5 +1,6 @@
 import { Provider } from "./aiProviders";
 import { ModelProviderMap } from "./providerMap";
+import "dotenv/config";
 
 export class Config {
   public readonly model: string;

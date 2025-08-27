@@ -3,18 +3,22 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "docs": "npx tsx ./main.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@langchain/anthropic": "^0.3.26",
     "@langchain/aws": "^0.1.14",
     "@langchain/core": "^0.3.72",
+    "dotenv": "^17.2.1",
     "langchain": "^0.3.31"
   },
   "devDependencies": {
-    "@types/node": "^24.3.0"
+    "@types/node": "^24.3.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
   }
 }

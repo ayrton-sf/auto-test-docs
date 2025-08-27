@@ -1,8 +1,5 @@
 import { Provider } from "./aiProviders";
 
 export const ModelProviderMap: Record<string, Provider> = {
-  'gpt-4': Provider.OPENAI,
-  'gpt-4o': Provider.BEDROCK,
-  'claude-3': Provider.ANTHROPIC,
-  'claude-instant': Provider.ANTHROPIC,
+  "anthropic.claude-3-5-sonnet-20240620-v1:0": Provider.BEDROCK,
 };

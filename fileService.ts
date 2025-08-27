@@ -14,16 +14,15 @@ export class FileService {
     this.jsonPath = path.join(process.cwd(), "docs.json");
 
     if (fs.existsSync(this.jsonPath)) {
-      try {
-        const data = fs.readFileSync(this.jsonPath, "utf-8");
-        this.state = JSON.parse(data);
-      } catch (e) {
-        console.warn("Failed to load existing JSON, starting with empty state.", e);
-        this.state = {};
-      }
+      const data = fs.readFileSync(this.jsonPath, "utf-8");
+      this.state = JSON.parse(data);
     } else {
       this.state = {};
     }
+  }
+
+  public read(filePath: string): string {
+    return fs.readFileSync(filePath, "utf-8").trim();
   }
 
   public save(filePath: string, summary: string) {
@@ -35,7 +34,10 @@ export class FileService {
     if (files.length > 0) {
       const dict: FileDict = {};
       for (const f of files) {
-        const relativePath = path.relative(this.config.inputDir, path.join(this.config.inputDir, f));
+        const relativePath = path.relative(
+          this.config.inputDir,
+          path.join(this.config.inputDir, f)
+        );
         dict[relativePath] = this.state[relativePath] || "";
       }
       return dict;
@@ -48,7 +50,9 @@ export class FileService {
         if (entry.isDirectory()) {
           scanDir(fullPath);
         } else if (entry.isFile()) {
-          const relPath = path.relative(this.config.inputDir, fullPath).replace(/\\/g, "/");
+          const relPath = path
+            .relative(this.config.inputDir, fullPath)
+            .replace(/\\/g, "/");
           scannedDict[relPath] = "";
         }
       }

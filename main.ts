@@ -4,7 +4,6 @@ import { MarkdownService } from "./markdownService";
 import { LLMService } from "./llmService";
 import { FileService } from "./fileService";
 
-
 const config = new Config();
 const markdownService = new MarkdownService(config);
 const llmService = new LLMService(config);
@@ -24,7 +23,8 @@ if (isUpdate) {
 (async () => {
   for (const [file, desc] of Object.entries(files)) {
     const fullPath = path.join(config.inputDir, file);
-    const summary = await llmService.summarize(fullPath);
+    console.log("Processing: ", file);
+    const summary = await llmService.summarize(fileService.read(fullPath));
     fileService.save(file, summary);
   }
 
