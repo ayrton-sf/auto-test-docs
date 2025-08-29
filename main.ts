@@ -13,7 +13,7 @@ const args = process.argv.slice(2);
 const isUpdate = args.length > 0;
 const specifiedFiles = args;
 
-let files: Record<string, string>;
+let files: Record<string, { summary: string; services: string[] }>;
 if (isUpdate) {
   files = fileService.toDict(specifiedFiles);
 } else {
@@ -25,7 +25,8 @@ if (isUpdate) {
     const fullPath = path.join(config.inputDir, file);
     console.log("Processing: ", file);
     const summary = await llmService.summarize(fileService.read(fullPath));
-    fileService.save(file, summary);
+    const servicesUsed = await fileService.scanServices(fullPath);
+    fileService.save(file, summary, servicesUsed);
   }
 
   markdownService.save(fileService.stateDict);
