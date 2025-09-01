@@ -4,6 +4,8 @@ import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import * as fs from "fs";
 import { Config } from "./config";
+import { ChatAnthropic } from "@langchain/anthropic";
+import { ChatOpenAI } from "@langchain/openai";
 
 enum Prompts {
   SUMMARIZE_TEST = "./summarize_file.txt",
@@ -25,6 +27,20 @@ export class LLMService {
             accessKeyId: this.config.awsAccessKeyId as string,
             secretAccessKey: this.config.awsSecretAccessKey as string,
           },
+        }),
+      ANTHROPIC: () =>
+        new ChatAnthropic({
+          model: this.config.model,
+          temperature: 0,
+          maxTokens: undefined,
+          maxRetries: 3,
+          apiKey: this.config.apiKey,
+        }),
+      OPENAI: () =>
+        new ChatOpenAI({
+          model: this.config.model,
+          temperature: 0,
+          apiKey: this.config.apiKey,
         }),
     };
 
