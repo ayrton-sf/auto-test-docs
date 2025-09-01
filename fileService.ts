@@ -14,9 +14,12 @@ export class FileService {
   constructor(config: Config) {
     this.config = config;
     this.jsonPath = path.join(process.cwd(), "docs.json");
+    this.fetchState(this.jsonPath);
+  }
 
-    if (fs.existsSync(this.jsonPath)) {
-      const data = fs.readFileSync(this.jsonPath, "utf-8");
+  private fetchState(jsonPath: string): void {
+    if (fs.existsSync(jsonPath)) {
+      const data = fs.readFileSync(jsonPath, "utf-8");
       this.state = JSON.parse(data);
     } else {
       this.state = {};
@@ -27,7 +30,6 @@ export class FileService {
     return fs.readFileSync(filePath, "utf-8").trim();
   }
 
-  // now enforces { summary, services } schema
   public save(filePath: string, summary: string, services: string[] = []) {
     this.state[filePath] = { summary, services: [...new Set(services)] };
     fs.writeFileSync(this.jsonPath, JSON.stringify(this.state, null, 2));
@@ -35,47 +37,62 @@ export class FileService {
 
   public toDict(files: string[] = []): Record<string, FileMeta> {
     if (files.length > 0) {
-      const dict: Record<string, FileMeta> = {};
-      for (const f of files) {
-        const relativePath = path
-          .relative(this.config.inputDir, path.join(this.config.inputDir, f))
-          .replace(/\\/g, "/");
-
-        dict[relativePath] = this.state[relativePath] || {
-          summary: "",
-          services: [],
-        };
-      }
-      return dict;
+      return this.buildMetaDict(files, this.config.inputDir);
+    } else {
+      return this.scanForFiles(this.config.inputDir);
     }
-
-    const scannedDict: Record<string, FileMeta> = {};
-    const scanDir = (dir: string) => {
-      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          scanDir(fullPath);
-        } else if (entry.isFile()) {
-          const relPath = path
-            .relative(this.config.inputDir, fullPath)
-            .replace(/\\/g, "/");
-          scannedDict[relPath] = { summary: "", services: [] };
-        }
-      }
-    };
-
-    scanDir(this.config.inputDir);
-
-    if (Object.keys(this.state).length === 0) return scannedDict;
-
-    const newFiles: Record<string, FileMeta> = {};
-    for (const file of Object.keys(scannedDict)) {
-      if (!this.state[file]) newFiles[file] = { summary: "", services: [] };
-    }
-    return newFiles;
   }
 
-  // now returns the full meta (not just summary)
+  private scanForFiles(inputPath: string): Record<string, FileMeta> {
+    const scannedDir = this.scanDir(inputPath);
+
+    if (Object.keys(this.state).length === 0) return scannedDir;
+
+    const files: Record<string, FileMeta> = {};
+    for (const file of Object.keys(scannedDir)) {
+      if (!this.state[file]) files[file] = { summary: "", services: [] };
+    }
+    return files;
+  }
+
+  private buildMetaDict(
+    files: string[],
+    inputPath: string
+  ): Record<string, FileMeta> {
+    const dict: Record<string, FileMeta> = {};
+    for (const f of files) {
+      const relativePath = path
+        .relative(inputPath, path.join(inputPath, f))
+        .replace(/\\/g, "/");
+
+      dict[relativePath] = {
+        summary: "",
+        services: [],
+      };
+    }
+    return dict;
+  }
+
+  private scanDir(dir: string): Record<string, FileMeta> {
+    const scannedDict: Record<string, FileMeta> = {};
+
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name);
+
+      if (entry.isDirectory()) {
+        this.scanDir(fullPath);
+      } else if (entry.isFile()) {
+        const relPath = path
+          .relative(this.config.inputDir, fullPath)
+          .replace(/\\/g, "/");
+
+        scannedDict[relPath] = { summary: "", services: [] };
+      }
+    }
+
+    return scannedDict;
+  }
+
   public get stateDict(): FileState {
     return this.state;
   }

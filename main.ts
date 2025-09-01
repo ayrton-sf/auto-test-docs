@@ -21,7 +21,7 @@ if (isUpdate) {
 }
 
 (async () => {
-  for (const [file, desc] of Object.entries(files)) {
+  for (const [file, _] of Object.entries(files)) {
     const fullPath = path.join(config.inputDir, file);
     console.log("Processing: ", file);
     const summary = await llmService.summarize(fileService.read(fullPath));

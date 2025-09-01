@@ -1,10 +1,10 @@
-import { Provider } from "./aiProviders";
-import { ModelProviderMap } from "./providerMap";
+import { aiProvider, aiProviderKeys } from "./aiProviders";
+import { Models } from "./models";
 import "dotenv/config";
 
 export class Config {
   public readonly model: string;
-  public readonly provider: Provider;
+  public readonly provider: aiProvider;
   public readonly inputDir: string;
   public readonly outputPath: string;
   public readonly awsSecretAccessKey?: string;
@@ -15,35 +15,41 @@ export class Config {
   public readonly dirsToKeepJoined?: string[];
 
   constructor() {
-    this.model = this.getEnvVar("LLM_MODEL");
-    this.provider = ModelProviderMap[this.model];
-    this.inputDir = this.getEnvVar("INPUT_DIR");
-    this.outputPath = this.getEnvVar("OUTPUT_PATH");
-    const dirsCapitalize = process.env["DIRS_TO_CAPITALIZE"];
-    const dirsKeepJoined = process.env["DIRS_TO_KEEP_JOINED"];
-    this.dirsToCapitalize = dirsCapitalize
-      ? dirsCapitalize
-          .split(",")
-          .map((dir) => dir.trim())
-          .filter((dir) => dir.length > 0)
-      : undefined;
-    this.dirsToKeepJoined = dirsKeepJoined
-      ? dirsKeepJoined
-          .split(",")
-          .map((dir) => dir.trim())
-          .filter((dir) => dir.length > 0)
-      : undefined;
+    this.model = this.getRequiredEnvVar("LLM_MODEL");
+    this.provider = Models[this.model];
+    this.inputDir = this.getRequiredEnvVar("INPUT_DIR");
+    this.outputPath = this.getRequiredEnvVar("OUTPUT_PATH");
+    this.dirsToCapitalize = this.parseEnvVarArray("DIRS_TO_CAPITALIZE");
+    this.dirsToKeepJoined = this.parseEnvVarArray("DIRS_TO_KEEP_JOINED");
+    this.setLLMEnvVar(this.provider);
+  }
 
-    if (this.provider === Provider.BEDROCK) {
-      this.awsAccessKeyId = this.getEnvVar("AWS_ACCESS_KEY_ID");
-      this.awsSecretAccessKey = this.getEnvVar("AWS_SECRET_ACCESS_KEY");
-      this.awsRegion = this.getEnvVar("AWS_REGION");
-    } else {
-      this.apiKey = this.getEnvVar("API_KEY");
+  private setLLMEnvVar(provider: aiProvider) {
+    for (const envKey of aiProviderKeys[provider]) {
+      const propName = this.envKeyToPropName(envKey);
+      (this as Config)[propName] = process.env[envKey];
     }
   }
 
-  private getEnvVar(name: string): string {
+  private envKeyToPropName(envKey: string): string {
+    return envKey
+      .toLowerCase()
+      .replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+  }
+
+  private parseEnvVarArray(arrayKey: string): undefined | string[] {
+    const envValue = process.env[arrayKey];
+    if (!envValue) {
+      return undefined;
+    } else {
+      return envValue
+        .split(",")
+        .map((dir) => dir.trim())
+        .filter((dir) => dir.length > 0);
+    }
+  }
+
+  private getRequiredEnvVar(name: string): string {
     const value = process.env[name];
     if (!value) throw new Error(`Missing env variable: ${name}`);
     return value;

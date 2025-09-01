@@ -1,7 +1,6 @@
 import { ChatBedrockConverse } from "@langchain/aws";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { ChatAnthropic } from "@langchain/anthropic";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import * as fs from "fs";
 import { Config } from "./config";
