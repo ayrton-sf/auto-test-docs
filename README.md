@@ -31,7 +31,7 @@ npm run docs subfolder1/myTest.spec.ts subfolder1/subfolder2/myOtherTest.spec.ts
 
 > **Current Limitations:**  
 > Currently, Auto-Test Docs only fully supports TypeScript test frameworks that follow the architecture used by [this TypeScript based automation framework](https://github.com/damianpereira86/api-framework-ts-mocha.git).
-> Support for other frameworks is planned for future releases and contributions that enhance support across languages and frameworks are welcomed.
+> Support for other frameworks is planned for future releases.
 
 ---
 
