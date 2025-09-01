@@ -74,13 +74,14 @@ export class FileService {
   }
 
   private scanDir(dir: string): Record<string, FileMeta> {
-    const scannedDict: Record<string, FileMeta> = {};
+    let scannedDict: Record<string, FileMeta> = {};
 
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const fullPath = path.join(dir, entry.name);
 
       if (entry.isDirectory()) {
-        this.scanDir(fullPath);
+        const nested = this.scanDir(fullPath);
+        scannedDict = { ...scannedDict, ...nested };
       } else if (entry.isFile()) {
         const relPath = path
           .relative(this.config.inputDir, fullPath)
