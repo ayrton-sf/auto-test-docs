@@ -38,7 +38,7 @@ npm run docs subfolder1/myTest.spec.ts subfolder1/subfolder2/myOtherTest.spec.ts
 ## ⚙️ Configuration
 
 - **`LLM_MODEL`**
-  One of the LLMs listed in models.ts.
+  One of the LLMs listed in `models.ts`.
 - **`API_KEY`**
   Anthropic or OpenAI API Key.
 - **`INPUT_DIR`**
